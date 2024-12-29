@@ -7,6 +7,8 @@
 using namespace std;
 
 void get_URL(const string &host, const string &path) {
+    // 创建 TCP socket 并连接到服务器
+
     // Your code here.
 
     // You will need to connect to the "http" service on
@@ -16,9 +18,25 @@ void get_URL(const string &host, const string &path) {
     // Then you'll need to print out everything the server sends back,
     // (not just one call to read() -- everything) until you reach
     // the "eof" (end of file).
+    TCPSocket socket;
+    socket.connect(Address(host, "http"));
+    
+    string message;
+    message += "GET " + path + " HTTP/1.1\r\n";
+    message += "Host: " + host + "\r\n";
+    message += "Connection: close\r\n\r\n";
+    
+    socket.write(message);
+    
+    // 持续读取直到连接关闭
+    while (!socket.eof()) {
+        string data = socket.read();
+        if (!data.empty()) {
+            cout << data;
+        }
+    }
 
-    cerr << "Function called: get_URL(" << host << ", " << path << ").\n";
-    cerr << "Warning: get_URL() has not been implemented yet.\n";
+    // cerr << "Function called: get_URL(" << host << ", " << path << ").\n";
 }
 
 int main(int argc, char *argv[]) {

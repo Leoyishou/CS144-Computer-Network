@@ -7,3 +7,11 @@ Makefile
 cmake_install.cmake
 CTestTestfile.cmake
 compile_commands.json
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/.gitignore
+/.idea/CS144-Computer-Network.iml
+/.idea/encodings.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/vcs.xml
+/.vscode/settings.json
