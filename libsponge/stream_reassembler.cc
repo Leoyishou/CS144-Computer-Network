@@ -54,16 +54,16 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
                             |offset|
                                    |-可用空间-|
     */
-    if (index >= unass_base)) {
+    if (index >= unass_base) {
         // 如果data 的起点在无序起点的后面，则需要计算偏移量
         int offset = index - unass_base;
-        size_t real_len = min(len, _capacity-_output.buffer_size()-offset)
+        size_t real_len = min(len, _capacity-_output.buffer_size()-offset);
         if (real_len < len) {
             _eof = false;
         }
         for (size_t i = 0; i < real_len; i++) {
             if (bitmap[i + offset]) {
-                continue
+                continue;
             }
             buffer[i + offset] = data[i];
             bitmap[i + offset] = true;
@@ -92,8 +92,8 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
             if (bitmap[i]) {
                 continue;
             }
-            buffer[i] = data[i + offset]
-            bitmap[i] = true
+            buffer[i] = data[i + offset];
+            bitmap[i] = true;
             unass_size++;
         }
     }
