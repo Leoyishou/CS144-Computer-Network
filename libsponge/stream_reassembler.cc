@@ -12,16 +12,18 @@ void DUMMY_CODE(Targs &&... /* unused */) {}
 
 using namespace std;
 
-StreamReassembler::StreamReassembler(const size_t capacity):
-unass_base(0), unass_size(0), _eof(0), buffer(capacity, '\0'),
-bitmap(capacity, false), _output(capacity), _capacity(capacity) {}
+StreamReassembler::StreamReassembler(const size_t capacity)
+    : unass_base(0)
+    , unass_size(0)
+    , _eof(0)
+    , buffer(capacity, '\0')
+    , bitmap(capacity, false)
+    , _output(capacity)
+    , _capacity(capacity) {}
 
-//! \details This functions calls just after pushing a substring into the
-//! _output stream. It aims to check if there exists any contiguous substrings
-//! recorded earlier can be push into the stream.
 void StreamReassembler::check_contiguous() {
     string tmp = "";
-    while (bitmap.front()) {   // 如果数据一直有效
+    while (bitmap.front()) {    // 如果数据一直有效
         tmp += buffer.front();  // 就从 buffer 导出到 tmp 中
         buffer.pop_front();
         bitmap.pop_front();
@@ -29,7 +31,7 @@ void StreamReassembler::check_contiguous() {
         bitmap.push_back(false);
     }
     if (tmp.length() > 0) {
-        cout << "push one contiguous substring with length " << tmp.length() << endl;
+//        cout << "push one contiguous substring with length " << tmp.length() << endl;
         _output.write(tmp);
         unass_base += tmp.length();  // 无序的起点向后移动了
         unass_size -= tmp.length();  // 无序的长度减少了
@@ -57,7 +59,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     if (index >= unass_base) {
         // 如果data 的起点在无序起点的后面，则需要计算偏移量
         int offset = index - unass_base;
-        size_t real_len = min(len, _capacity-_output.buffer_size()-offset);
+        size_t real_len = min(len, _capacity - _output.buffer_size() - offset);
         if (real_len < len) {
             _eof = false;
         }
@@ -69,16 +71,16 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
             bitmap[i + offset] = true;
             unass_size++;
         }
-    /*
-    index=3
-                ↓
-    +---+---+---+---+---+---+---+---+---+---+
-    | A | B | C | W | O | R | L | D |   |   |  新数据
-    +---+---+---+---+---+---+---+---+---+---+
-                |<----- data="WORLD" ----->|
-                        ↑
-                   unass_base=5
-    */
+        /*
+        index=3
+                    ↓
+        +---+---+---+---+---+---+---+---+---+---+
+        | A | B | C | W | O | R | L | D |   |   |  新数据
+        +---+---+---+---+---+---+---+---+---+---+
+                    |<----- data="WORLD" ----->|
+                            ↑
+                       unass_base=5
+        */
     } else if (index + len > unass_base) {
         // 如果 data 的尾巴和无序的起点重叠，则需要计算重叠的长度
         int offset = unass_base - index;
@@ -103,10 +105,8 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     }
 }
 
-size_t StreamReassembler::unassembled_bytes() const {
-    return unass_size;
-}
+size_t StreamReassembler::unassembled_bytes() const { return unass_size; }
 
-bool StreamReassembler::empty() const {
-    return unass_size == 0;
-}
+bool StreamReassembler::empty() const { return unass_size == 0; }
+
+size_t StreamReassembler::ack_index() const { return unass_base; }

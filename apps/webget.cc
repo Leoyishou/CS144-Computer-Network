@@ -23,16 +23,16 @@ void get_URL(const string &host, const string &path) {
     TCPSocket socket;
     socket.connect(Address(host, "http"));
     string message;
-    message += "GET " + path + " HTTP/1.1\r\n"  // \r 代表回车符（Carriage Return）
-    message += "HOST: " + host + "\r\n"
-    message += "Connection: close\r\n\r\n"  // 最后要有一个额外的\r\n 空行
+    message += "GET " + path + " HTTP/1.1\r\n";  // \r 代表回车符（Carriage Return）
+    message += "HOST: " + host + "\r\n";
+    message += "Connection: close\r\n\r\n";  // 最后要有一个额外的\r\n 空行
     socket.write(message);
     while (!socket.eof()) {  // 只要没到 end of file，就一直读
         cout << socket.read();
     }
-    cerr << "function called: get_URL("" << host << ", " << path << ").\n";
+    cerr << "function called: get_URL(" << host << ", " << path << ").\n";
     cerr << "Warning: get_URL() has not been implemented yet.\n";
-    
+
 }
 
 int main(int argc, char *argv[]) {

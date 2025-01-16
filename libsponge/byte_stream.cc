@@ -1,7 +1,6 @@
 #include "byte_stream.hh"
 
 #include <algorithm>
-
 // Dummy implementation of a flow-controlled in-memory byte stream.
 
 // For Lab 0, please replace with a real implementation that passes the
@@ -17,27 +16,28 @@ using namespace std;
 ByteStream::ByteStream(const size_t cap)
     : buffer(), capacity(cap), end_write(false), end_read(false), written_bytes(0), read_bytes(0) {}
 
+// 让 buffer 入队
 size_t ByteStream::write(const string &data) {
-    size_t canWrite = capacity - buffer.size();
-    size_t realWrite = min(canWrite, data.length());
-    for (size_t i = 0; i < realWrite; i++) {
+    size_t maxCanWrite = capacity - buffer.size();         // 还能装多少水
+    size_t realNeedWrite = min(maxCanWrite, data.size());  // 想要倒多少水 和 还能装的水 取最小值
+    for (size_t i = 0; i < realNeedWrite; i++) {
         buffer.push_back(data[i]);
     }
-    written_bytes += realWrite;
-    return realWrite;
+    written_bytes += realNeedWrite;  // 最终装了多少水
+    return realNeedWrite;
 }
 
 //! \param[in] len bytes will be copied from the output side of the buffer
 string ByteStream::peek_output(const size_t len) const {
     size_t canPeek = min(len, buffer.size());
-    string out = "";
+    string res = "";
     for (size_t i = 0; i < canPeek; i++) {
-        out += buffer[i];
+        res += buffer[i];
     }
-    return out;
+    return res;
 }
 
-//! \param[in] len bytes will be removed from the output side of the buffer
+// 让 buffer 出队
 void ByteStream::pop_output(const size_t len) {
     if (len > buffer.size()) {
         set_error();
@@ -75,11 +75,8 @@ size_t ByteStream::buffer_size() const { return buffer.size(); }
 
 bool ByteStream::buffer_empty() const { return buffer.empty(); }
 
-bool ByteStream::eof() const {
-    //写入端已经结束，表示不会再有新的数据写入
-    // 缓冲区为空，意味着当前没有可读取的数据
-    return buffer.empty() && end_write;
-}
+// buffer 中已经倒光,且不会新写入了
+bool ByteStream::eof() const { return buffer.empty() && end_write; }
 
 size_t ByteStream::bytes_written() const { return written_bytes; }
 

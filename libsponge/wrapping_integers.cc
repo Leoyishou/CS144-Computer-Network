@@ -1,4 +1,5 @@
 #include "wrapping_integers.hh"
+
 #include <iostream>
 // Dummy implementation of a 32-bit wrapping integer
 
@@ -10,11 +11,8 @@ void DUMMY_CODE(Targs &&... /* unused */) {}
 
 using namespace std;
 
-
 // wrap：做的事就像“模运算 + 初始偏移量”，把一个大数折叠进小小的环状空间
-WrappingInt32 wrap(uint64_t n, WrappingInt32 isn) {
-    return isn + uint32_t(n);
-}
+WrappingInt32 wrap(uint64_t n, WrappingInt32 isn) { return isn + uint32_t(n); }
 
 //! Transform a WrappingInt32 into an "absolute" 64-bit sequence number (zero-indexed)
 // 为了知道当前真正的数据在整条传输过程中的绝对位置，
@@ -30,13 +28,14 @@ uint64_t unwrap(WrappingInt32 n, WrappingInt32 isn, uint64_t checkpoint) {
     uint64_t tmp = 0;
     uint64_t tmp1 = 0;
     if (n - isn < 0) {
-    //相对几点(n)”比“初始参考时间(isn)”要小，那么就补一圈
-        tmp = uint64_t(n - isn + (1l<<32));
+        //相对几点(n)”比“初始参考时间(isn)”要小，那么就补一圈
+        tmp = uint64_t(n - isn + (1l << 32));
     } else {
         tmp = uint64_t(n - isn);
     }
     // 算出来的 tmp 已经比最近确认过的“绝对小时数”还大，那说明不用再去“加天数”了
-    if (tmp >= checkpoint) return tmp;
+    if (tmp >= checkpoint)
+        return tmp;
     // “加天数”,把“天数”信息先对齐到跟 checkpoint 相同的天数区间上去
     // 假设 temp是现在是3点, checkpoint 是第3天的下午2点
     // 1.得到第几天
@@ -55,7 +54,7 @@ uint64_t unwrap(WrappingInt32 n, WrappingInt32 isn, uint64_t checkpoint) {
     if (checkpoint - tmp1 < tmp - checkpoint) {
         // tmp1 ----5小时---> checkpoint ----19小时---> tmp
         return tmp1;
-    }else {
+    } else {
         // 否则返回天数
         return tmp;
     }
