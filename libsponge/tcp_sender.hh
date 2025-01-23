@@ -9,6 +9,44 @@
 #include <functional>
 #include <queue>
 
+class Alarm {
+    private:
+        bool alive; // 是否开启
+        size_t counter; // 当前时间
+        unsigned int time_limit; // 闹钟时间
+
+    public:
+        Alarm (unsigned int RTO):
+            alive(false),
+            counter(0),
+            time_limit(RTO) {};
+
+        void start(unsigned int RTO) {
+            time_limit = RTO;
+            alive = true;
+            counter = 0;
+        }
+
+        void tick(const size_t ms_since_last_tick) {
+            if (!alive) {
+                return;
+            }
+            counter += ms_since_last_tick;
+        }
+
+        void stop() {
+            alive = false;
+            counter = 0;
+        }
+
+        bool isStarted() {
+            return alive;
+        }
+
+        bool isExpired() {
+            return alive && (counter >= time_limit);
+        }
+};
 //! \brief The "sender" part of a TCP implementation.
 
 //! Accepts a ByteStream, divides it up into segments and sends the
@@ -30,7 +68,42 @@ class TCPSender {
     ByteStream _stream;
 
     //! the (absolute) sequence number for the next byte to be sent
+    // 下一个绝对序号
     uint64_t _next_seqno{0};
+
+    Alarm _alarm;
+
+    uint16_t _rwindow;
+
+    // 接收方的窗口大小
+    uint16_t _recx_windowsize;
+
+    uint16_t _acknos;
+
+     // 用于跟踪所有已发送但还未被确认的TCP段
+    std::queue<TCPSegment> _outstanding{};
+
+    unsigned int _RTO;
+
+    unsigned int _conse_retrans;
+
+    bool _synSend;
+
+    bool _finSend;
+
+    void remove_ack(const uint64_t ackno);
+
+    void send(const TCPSegment& segment);
+
+    void send_SYN();
+
+    uint64_t next_abs_seqno() {
+        return _next_seqno;
+    }
+
+    WrappingInt32 next_rela_seqno() {
+        return wrap(_next_seqno, _isn);
+    }
 
   public:
     //! Initialize a TCPSender
