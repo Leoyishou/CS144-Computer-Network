@@ -56,6 +56,13 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
                             |offset|
                                    |-可用空间-|
     */
+    if (len == 0 && _eof && unass_size == 0) {
+        _output.end_input();
+        return;
+    }
+    // ignore invalid index
+    if (index >= unass_base + _capacity) return;
+
     if (index >= unass_base) {
         // 如果data 的起点在无序起点的后面，则需要计算偏移量
         int offset = index - unass_base;
